@@ -1,0 +1,31 @@
+alias alr := add-local-release
+alias ba := build-android
+alias c := clean
+alias ra := run-android
+alias rls := remove-local-source
+
+JAVA_HOME := "/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
+
+add-local-release: clean
+    #!/usr/bin/env sh
+    set -euo pipefail
+    PWD=$(pwd)
+
+    just remove-local-source || true
+    dotnet nuget add source "$PWD/../sdk-maui/HyperTrackSdkMaui/bin/Release" --name MyLocalSource
+    dotnet add package My.Library.Test --version 1.0.0
+
+build-android:
+    dotnet build -t:Build -f net9.0-android -p:Configuration=Debug -p:JavaSdkDirectory="{{JAVA_HOME}}"
+
+clean:
+    dotnet clean
+    rm -rf bin
+    rm -rf obj
+    rm -rf Debug
+
+remove-local-source:
+    dotnet nuget remove source MyLocalSource || true
+
+run-android: 
+    dotnet build -t:Run -f net9.0-android -p:Configuration=Debug -p:JavaSdkDirectory="{{JAVA_HOME}}"

@@ -1,0 +1,23 @@
+alias ba := build-android
+alias c := clean
+
+JAVA_SDK_DIR := "/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
+
+build-android:
+    dotnet build HyperTrackSdkMaui/HyperTrackSdkMaui.csproj -f net9.0-android -p:Configuration=Debug -p:JavaSdkDirectory="{{JAVA_SDK_DIR}}"
+
+build-ios:
+    # dotnet build -t:Run -v diag --debug -f net9.0-ios
+    dotnet build HyperTrackSdkMaui/HyperTrackSdkMaui.csproj -f net9.0-ios
+
+clean:
+    dotnet clean
+    rm -rf HyperTrackSdkMaui/bin
+    rm -rf HyperTrackSdkMaui/obj
+    rm -rf HyperTrackSdkMaui/Debug
+
+release: clean
+    dotnet restore
+    dotnet build HyperTrackSdkMaui/HyperTrackSdkMaui.csproj -f net9.0-android -p:Configuration=Release -p:JavaSdkDirectory="{{JAVA_SDK_DIR}}"
+    dotnet pack -c Release -p:JavaSdkDirectory="{{JAVA_SDK_DIR}}"
+    echo "Check the release build .nupkg in ./bin/Release"
